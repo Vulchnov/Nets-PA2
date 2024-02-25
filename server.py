@@ -34,6 +34,7 @@ def check_initialization(encoded_data):
         initial_message = open_struct(encoded_data)
         num_hash_requests = socket.ntohl(initial_message[1])  # Block sizes this client will send
         type_val = socket.ntohs(initial_message[0])
+        print(type_val)
         if type_val != 0x1:
             print("SERVER: Invalid Type Value")
             return False
@@ -113,13 +114,15 @@ if __name__ == '__main__':
                         continue
 
                     initial_message = open_struct(data)
-                    message_type = socket.ntohs(initial_message[0])
+                    message_type = initial_message[0]
+                    #message_type = socket.ntohs(initial_message[0])
+                    print(message_type)
 
                     if message_type == 0x1:
                         n_sizes[s] = check_initialization(data)
                         ack_message = create_acknowledgement(data)
                         s.sendall(ack_message)
-                    elif message_type == 0x2:
+                    elif message_type == 0x3:
                         hash_request_info = check_hash_request(data)
                         if hash_request_info:
                             hashed_data_response = get_hashed_data(hash_request_info)

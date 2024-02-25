@@ -28,7 +28,7 @@ def create_hash_request(hash_count, block_size, current_block):
     # Then, return the message as a struct obj
 
     hash_count += 1;
-    block_len = len(block_size)
+    block_len = block_size
     struct_hash_message = create_struct(0x3, hash_count, block_len, current_block)
 
     return struct_hash_message
