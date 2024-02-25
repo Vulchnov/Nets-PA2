@@ -22,9 +22,9 @@ def create_acknowledgement(input_n):
     
     # Write your logic
     acknow_message = open_struct(input_n)
-    type = socket.ntohs(0x3)
-    length = 40 * acknow_message[1]
-    empty_payload = socket.htonl(b'\x00' * 32)
+    type = 0x2
+    length = acknow_message[1]
+    empty_payload = bytes(32)
     message = create_struct(type, 0, length, empty_payload)
     return message
 
@@ -33,7 +33,7 @@ def check_initialization(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
         num_hash_requests = socket.ntohl(initial_message[1])  # Block sizes this client will send
-        type_val = socket.ntohs(initial_message[0])
+        type_val = initial_message[0]
         print(type_val)
         if type_val != 0x1:
             print("SERVER: Invalid Type Value")
@@ -46,7 +46,7 @@ def check_initialization(encoded_data):
 def check_hash_request(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        type_val = socket.ntohs(initial_message[0])
+        type_val = initial_message[0]
         if type_val != 0x3:
             print("SERVER: Invalid Type Value")
             return False 

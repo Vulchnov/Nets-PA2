@@ -17,9 +17,8 @@ def open_struct(struct_obj):
 def create_initialization(hash_requests):
     # This function will be used to create the initialization message to send to the server using struct
     # Then, return the message
-    empty_binary = b'\x00'*32
+    empty_binary = bytes(32)
     message = create_struct(0x1, socket.htonl(hash_requests), 0, empty_binary)
-    print(message)
     return message
 
 
@@ -37,7 +36,7 @@ def create_hash_request(hash_count, block_size, current_block):
 def check_acknowledgement(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        type_val = socket.ntohs(initial_message[0])
+        type_val = initial_message[0]
         if type_val != 0x2:
             print("CLIENT: Invalid Type Value")
             return False
@@ -50,7 +49,7 @@ def check_acknowledgement(encoded_data):
 def check_hash_response(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        type_val = socket.ntohs(initial_message[0])
+        type_val = initial_message[0]
         if type_val != 0x4:
             print("CLIENT: Invalid Type Value")
             return False
