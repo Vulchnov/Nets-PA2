@@ -61,12 +61,12 @@ def get_hashed_data(hash_request):
     # Then, return hashed data and hash response
 
     # Extract variables
-    request_type = hash_request[0]  # HashRequest Type
+    request_type = 0x4
     request_i = hash_request[1]  # HashRequest i
     request_len = 32  # HashRequest Length
+    print(hash_salt)
     request_payload = hash_salt.encode('utf-8') + hash_request[3]  # HashRequest Data + UTF-8 Encoded Salt
-
-    hash_and_salt = hashlib.sha256(request_payload)
+    hash_and_salt = hashlib.sha256(request_payload).digest()
     request_i += 1
     return create_struct(request_type, request_i, request_len, hash_and_salt)
 

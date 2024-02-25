@@ -50,6 +50,7 @@ def check_hash_response(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
         type_val = initial_message[0]
+        print(type_val)
         if type_val != 0x4:
             print("CLIENT: Invalid Type Value")
             return False
