@@ -1,5 +1,6 @@
 import struct
 import sys
+import os
 import socket
 
 
@@ -26,7 +27,7 @@ def create_hash_request(hash_count, block_size, current_block):
     # This function will create a Hash Request
     # Then, return the message as a struct obj
 
-    hash_count += 1;
+    hash_count += 1
     block_len = block_size
     struct_hash_message = create_struct(0x3, hash_count, block_len, current_block)
 
@@ -36,7 +37,7 @@ def create_hash_request(hash_count, block_size, current_block):
 def check_acknowledgement(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        type_val = initial_message[0]
+        type_val = initial_message[0] #Gets the type for the message
         if type_val != 0x2:
             print("CLIENT: Invalid Type Value")
             return False
@@ -49,8 +50,7 @@ def check_acknowledgement(encoded_data):
 def check_hash_response(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        type_val = initial_message[0]
-        print(type_val)
+        type_val = initial_message[0] #Gets the type of the message
         if type_val != 0x4:
             print("CLIENT: Invalid Type Value")
             return False
@@ -73,13 +73,20 @@ def connect_server(ip, port):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Variables we need from the command line
-    server_ip = sys.argv[2]  # Extract server IP
-    server_port = int(sys.argv[4])  # Extract server port
-    hash_block_size = int(sys.argv[6])  # Extract S
-    file_path = sys.argv[8]  # Extract file path
+    for i in range(len(sys.argv)-1):
+        if sys.argv[i] == "-a":
+            server_ip = sys.argv[i+1]  # Extract server IP
+        elif sys.argv[i] == "-p":
+            server_port = int(sys.argv[i+1])  # Extract server port
+        elif sys.argv[i] =="-s":
+            hash_block_size = int(sys.argv[i+1])  # Extract S
+        elif sys.argv[i] == "-f":
+            file_path = sys.argv[i+1]  # Extract file path
 
     # Open our file from command line
-    chosen_file = open(file_path, 'rb')
+    current_directory = os.getcwd()
+    final_directory = os.path.join(current_directory, file_path)
+    chosen_file = open(final_directory, 'rb')
 
     # Connect to the server!
     server_socket = connect_server(server_ip, server_port)

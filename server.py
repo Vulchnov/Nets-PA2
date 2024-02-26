@@ -21,9 +21,8 @@ def create_acknowledgement(input_n):
     # Then, return acknowledgement message
     
     # Write your logic
-    acknow_message = open_struct(input_n)
     type = 0x2
-    length = acknow_message[1]
+    length = input_n #This is where you would normally do the 40 * S that the pdf asks for, however that is to large for the struct.pack() method
     empty_payload = bytes(32)
     message = create_struct(type, 0, length, empty_payload)
     return message
@@ -32,9 +31,8 @@ def create_acknowledgement(input_n):
 def check_initialization(encoded_data):
     try:
         initial_message = open_struct(encoded_data)
-        num_hash_requests = socket.ntohl(initial_message[1])  # Block sizes this client will send
+        num_hash_requests = initial_message[1]  # Block sizes this client will send
         type_val = initial_message[0]
-        print(type_val)
         if type_val != 0x1:
             print("SERVER: Invalid Type Value")
             return False
@@ -64,9 +62,8 @@ def get_hashed_data(hash_request):
     request_type = 0x4
     request_i = hash_request[1]  # HashRequest i
     request_len = 32  # HashRequest Length
-    print(hash_salt)
     request_payload = hash_salt.encode('utf-8') + hash_request[3]  # HashRequest Data + UTF-8 Encoded Salt
-    hash_and_salt = hashlib.sha256(request_payload).digest()
+    hash_and_salt = hashlib.sha256(request_payload).digest() #Hash the message and use digest() to convert it to bytes
     request_i += 1
     return create_struct(request_type, request_i, request_len, hash_and_salt)
 
@@ -84,8 +81,11 @@ def start_server(port):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Variables we need
-    server_port = int(sys.argv[2])  # Extract server port from command line arguments
-    hash_salt = sys.argv[4]  # Extract salt value from command line arguments
+    for i in range(len(sys.argv)-1):
+        if sys.argv[i] == "-p":
+            server_port = int(sys.argv[i+1])  # Extract server port from command line arguments
+        elif sys.argv[i] == "-s":
+            hash_salt = sys.argv[i+1]  # Extract salt value from command line arguments
 
     server_socket = start_server(server_port)
     clients = [server_socket]
@@ -99,30 +99,28 @@ if __name__ == '__main__':
         readable, writable, errored = select.select(clients, [], [], 0.1)
 
         for s in readable:
-            if s is server_socket:
+            if s is server_socket: #If its a new connection accept and add them back to the list
                 client_socket, address = server_socket.accept()
                 print(f"connection made with {address}")
                 clients.append(client_socket)
-            else:
+            else: #Else they are already accepted and waiting to be worked with
                 try:
                     data = s.recv(1024)
 
-                    if not data:
+                    if not data: #If nothing is recieved the client has disconnected early
                         print(f"Client disconnected")
                         clients.remove(s)
                         s.close()
                         continue
 
-                    initial_message = open_struct(data)
+                    initial_message = open_struct(data) #Open the message
                     message_type = initial_message[0]
-                    #message_type = socket.ntohs(initial_message[0])
-                    print(message_type)
 
-                    if message_type == 0x1:
-                        n_sizes[s] = check_initialization(data)
-                        ack_message = create_acknowledgement(data)
+                    if message_type == 0x1: #If its an initialization message send an ack
+                        n_size = check_initialization(data)
+                        ack_message = create_acknowledgement(n_size)
                         s.sendall(ack_message)
-                    elif message_type == 0x3:
+                    elif message_type == 0x3: #Else hash the info and send it to the client
                         hash_request_info = check_hash_request(data)
                         if hash_request_info:
                             hashed_data_response = get_hashed_data(hash_request_info)
