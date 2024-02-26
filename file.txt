@@ -1,5 +1,29 @@
-I have brought peace, freedom, justice, and security to my new empire.
-Your new empire.
-If you are not with me, then you are my enemy.
-Only a sith deals in absolutes, I will do what I must.
-You will try.
+Descripon.
+In this assignment, you will be wri4ng a TCP server and client, where the TCP server’s job is to
+take input requests from a TCP client to generate hash and send it back to the client. The client
+has a file and wants to obtain the hashes for various segments of the data inside the file. The
+client will send a message to the server for each segment, and the server will respond with the
+hash of the segment. The client converts each hash into a hexadecimal string representa4on and
+prints it to the console. The server must be able to handle more than one client concurrently.
+The details of the protocol followed in this case is described below.
+Protocol Overview.
+The protocol between the client and server
+will use four types of messages:
+Ini$aliza$on, Acknowledgement,
+HashRequest, and HashResponse. The client
+starts by sending an Ini$aliza$on message to
+the server, which informs the server of the
+size of the input data that the client will send
+(denoted by the variable S). AIerwards, the
+client sends N HashRequest messages to the
+server, where each HashRequest contains
+the data segment to be hashed. The server
+responds to the Ini$aliza$on message with
+an Acknowledgement, which informs the
+client about the total length of the response
+(40*S). AIer this, the server responds to each HashRequest with a HashResponse that contains
+the hash of the corresponding data included in HashRequest.
+Format of messages.
+For the sake of convenience, all the messages in this protocol follow same structure as shown
+below. However, some of the aPributes in the messages will be different depending on the type
+of message.
